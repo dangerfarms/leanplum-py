@@ -1,5 +1,5 @@
 import requests
-import exceptions
+from leanplum import exceptions
 
 
 class Leanplum:

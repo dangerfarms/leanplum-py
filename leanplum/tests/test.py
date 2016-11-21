@@ -1,7 +1,7 @@
 import requests_mock
 import unittest2
 
-from leanplum import Leanplum
+from leanplum.base import Leanplum
 
 
 @requests_mock.mock()
