@@ -49,6 +49,9 @@ class Leanplum:
         arguments.update({'action': 'start'})
         return self._request(arguments)[0]['response']
 
+    def stop(self):
+        return self._request({'action': 'stop'})[0]['response']
+
     def _request(self, request_body):
         """POST a request to the Leanplum Api.
         :param request_body: Request body as a dict.
