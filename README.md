@@ -1,5 +1,7 @@
 Python wrapper for the [Leanplum API](https://www.leanplum.com/dashboard#/4510371447570432/help/setup/api).
 
+**NOTE** This package is under development.
+
 Implemented methods:
 - start
 - stop
@@ -35,7 +37,8 @@ TODO: Handle limit and other errors
 
 # Develop
 
-```python
+Initial setup:
+```
 make
 ```
 
