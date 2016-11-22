@@ -4,10 +4,10 @@ Implemented methods:
 - start
 - stop
 - setUserAttributes
-
-TODO (prod, highest priority):
 - track
 - multi
+
+TODO (prod, highest priority):
 - sendMessage
 - advance
 - pauseState

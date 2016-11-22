@@ -2,7 +2,7 @@ install:
 	@pyvenv venv
 	@venv/bin/pip install -r requirements.dev.txt
 	@echo "#!/bin/bash" > .git/hooks/pre-commit
-	@echo "make testall" >> .git/hooks/pre-commit
+	@echo "make test" >> .git/hooks/pre-commit
 	@chmod +x .git/hooks/pre-commit
 
 testall: test integration

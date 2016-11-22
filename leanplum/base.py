@@ -45,21 +45,21 @@ class Leanplum:
         Additionally, if you set `deviceId` in your arguments, it will be set for the entire session.
         :param arguments: See the Leanplum docs for arguments structure:
             https://www.leanplum.com/dashboard#/<your-id>/help/setup/api.
-        :return: The unwrapped response object from Leanplum.
+        :return: The response object.
         """
         if arguments is None:
             arguments = {}
         self._set_session_properties_from_start_arguments(arguments)
         arguments.update({'action': 'start'})
-        return self._request(arguments)['response'][0]
+        return self._request(arguments)
 
     def stop(self):
         """Start a session. You must have called `set_user_id` or you must include `userId` in the arguments.
         :param arguments: See the Leanplum docs for arguments structure:
             https://www.leanplum.com/dashboard#/<your-id>/help/setup/api.
-        :return: The unwrapped response object from Leanplum.
+        :return: The response object.
         """
-        return self._request({'action': 'stop'})['response'][0]
+        return self._request({'action': 'stop'})
 
     def set_user_attributes(self, user_attributes):
         """Call the API with the setUserAttribute action
@@ -67,7 +67,40 @@ class Leanplum:
         :return: The unwrapped response object from Leanplum.
         """
         user_attributes.update({'action': 'setUserAttributes'})
-        return self._request(user_attributes)['response'][0]
+        return self._request(user_attributes)
+
+    def track(self, event_name, track_arguments):
+        """Call the API with the track action
+        https://www.leanplum.com/dashboard#/<your-id>/help/docs/api?section=track
+        :return: The response object.
+        """
+        track_arguments.update({
+            'action': 'track',
+            'event': event_name,
+        })
+        return self._request(track_arguments)
+
+    def multi(self, data):
+        """Call the  API with the multi action
+        https://www.leanplum.com/dashboard#/<your-id>/help/docs/api?section=multi
+        :return: The response object.
+        """
+        if self.device_id is None:
+            if self.user_id is None:
+                raise Exception(messages.USER_ID_OR_DEVICE_ID_NEEDED)
+            self.device_id = self.user_id
+
+        for d in data:
+            if self.dev_mode:
+                d['devMode'] = True
+            if d.get('deviceId') is None:
+               d['deviceId'] = self.device_id
+            if self.user_id and d.get('userId') is None:
+                d['userId'] = self.user_id
+
+        arguments = {'action': 'multi', 'data': data}
+        return self._request(arguments)
+
 
     def _request(self, request_body):
         """POST a request to the Leanplum Api.
@@ -79,7 +112,10 @@ class Leanplum:
             json=self._get_combined_arguments(request_body),
             headers=self._get_headers()
         )
-        return response.json()
+        try:
+            return response.json()['response'][0]
+        except [AttributeError, KeyError]:
+            return response.json()
 
     def _get_url(self):
         """Create the request URL based on the current values of the class.

@@ -49,3 +49,37 @@ class TestLeanplumIntegration(unittest2.TestCase):
         )
 
         self.assertTrue(response['success'])
+
+
+    def test_should_track_events(self):
+        lp = Leanplum(
+            self.api_id,
+            self.development_client_key,
+            dev_mode=True
+        )
+        lp.start({'userId': 'test', 'deviceId': 'test'})
+        track_response = lp.track('test event', {
+            'value': 1,
+            'info': 'This event was fired by running the automated test suite of leanplum-py',
+            'params': {'gender': 'F', 'age': 21}
+        })
+        lp.stop()
+        self.assertTrue(track_response['success'])
+
+    def test_should_do_multi(self):
+        lp = Leanplum(
+            self.api_id,
+            self.development_client_key,
+            dev_mode=True
+        )
+        time = lp._get_current_timestamp()
+        lp.set_device_id('test2')
+        lp.set_user_id('test2')
+        multi_response = lp.multi(
+            [
+                {'action': 'start', 'userId': 'test2', 'deviceId': 'test2', 'time': time - 5},
+                {'action': 'track', 'event': 'test2', 'time': time - 3},
+                {'action': 'stop', 'time': time}
+            ]
+        )
+        self.assertTrue(multi_response['success'])
