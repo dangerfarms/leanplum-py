@@ -1,12 +1,12 @@
 import os
 
-import time
 import unittest2
 
 from leanplum.base import Leanplum
 
 LEANPLUM_ENV_MESSAGE = 'Please make sure LEANPLUM_APP_ID, LEANPLUM_PRODUCTION_CLIENT_KEY, and ' \
                        'LEANPLUM_DEVELOPMENT_CLIENT_KEY are available as environmental variables. ' \
+                       'Add LEANPLUM_TEST_MESSAGE_ID as well if you want a test message to be sent' \
                        'See README for details.'
 
 
@@ -50,7 +50,6 @@ class TestLeanplumIntegration(unittest2.TestCase):
 
         self.assertTrue(response['success'])
 
-
     def test_should_track_events(self):
         lp = Leanplum(
             self.api_id,
@@ -83,3 +82,15 @@ class TestLeanplumIntegration(unittest2.TestCase):
             ]
         )
         self.assertTrue(multi_response['success'])
+
+    def test_should_send_message(self):
+        message_id = os.environ.get('LEANPLUM_TEST_MESSAGE_ID')
+        self.assertIsNotNone(message_id)
+        lp = Leanplum(
+            self.api_id,
+            self.production_client_key,
+            dev_mode=False
+        )
+        send_message_response = lp.send_message(message_id, user_id='test')
+
+        self.assertTrue(send_message_response['success'])

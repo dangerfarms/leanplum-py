@@ -101,6 +101,26 @@ class Leanplum:
         arguments = {'action': 'multi', 'data': data}
         return self._request(arguments)
 
+    def send_message(self, message_id, user_id=None, device_id=None, values=None, force=False):
+        """Send a message to a user or device
+        :param message_id: From the Leanplum website, www.leanplum.com/dashboard#/{APP_ID}/messaging/{MESSAGE_ID}
+        :param user_id: Use either user_id or device_id to target the message. If user_id is set, device_id is ignored.
+        :param device_id: Use either user_id or device_id to target the message
+        :return: The unwrapped response.
+        """
+        assert user_id is not None or device_id is not None, messages.USER_ID_OR_DEVICE_ID_NEEDED
+        arguments = {
+            'action': 'sendMessage',
+            'messageId': message_id,
+            'force': force
+        }
+        if user_id:
+            arguments['userId'] = user_id
+        elif device_id:
+            arguments['device_id'] = device_id
+        if values:
+            arguments['values'] = values
+        return self._request(arguments)
 
     def _request(self, request_body):
         """POST a request to the Leanplum Api.
@@ -112,6 +132,7 @@ class Leanplum:
             json=self._get_combined_arguments(request_body),
             headers=self._get_headers()
         )
+
         try:
             return response.json()['response'][0]
         except [AttributeError, KeyError]:
