@@ -3,9 +3,9 @@ Python wrapper for the [Leanplum API](https://www.leanplum.com/dashboard#/451037
 Implemented methods:
 - start
 - stop
+- setUserAttributes
 
 TODO (prod, highest priority):
-- setUserAttributes
 - track
 - multi
 - sendMessage
@@ -60,4 +60,4 @@ Now you can run:
 `make integration`
 
 ### Running all tests
-`make alltests`
+`make testall`

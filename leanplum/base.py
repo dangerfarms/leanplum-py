@@ -44,7 +44,7 @@ class Leanplum:
         """Start a session. You must have called `set_user_id` or you must include `userId` in the arguments.
         Additionally, if you set `deviceId` in your arguments, it will be set for the entire session.
         :param arguments: See the Leanplum docs for arguments structure:
-            https://www.leanplum.com/dashboard#/4510371447570432/help/setup/api.
+            https://www.leanplum.com/dashboard#/<your-id>/help/setup/api.
         :return: The unwrapped response object from Leanplum.
         """
         if arguments is None:
@@ -56,10 +56,18 @@ class Leanplum:
     def stop(self):
         """Start a session. You must have called `set_user_id` or you must include `userId` in the arguments.
         :param arguments: See the Leanplum docs for arguments structure:
-            https://www.leanplum.com/dashboard#/4510371447570432/help/setup/api.
+            https://www.leanplum.com/dashboard#/<your-id>/help/setup/api.
         :return: The unwrapped response object from Leanplum.
         """
         return self._request({'action': 'stop'})['response'][0]
+
+    def set_user_attributes(self, user_attributes):
+        """Call the API with the setUserAttribute action
+        https://www.leanplum.com/dashboard#/<your-id>/help/docs/api?section=setUserAttributes
+        :return: The unwrapped response object from Leanplum.
+        """
+        user_attributes.update({'action': 'setUserAttributes'})
+        return self._request(user_attributes)['response'][0]
 
     def _request(self, request_body):
         """POST a request to the Leanplum Api.

@@ -29,3 +29,23 @@ class TestLeanplumIntegration(unittest2.TestCase):
         self.assertTrue(start_response['success'])
         stop_response = lp.stop()
         self.assertTrue(stop_response['success'])
+
+    def test_should_set_user_attributes_when_not_in_active_session(self):
+        lp = Leanplum(
+            self.api_id,
+            self.development_client_key,
+            dev_mode=True
+        )
+        lp.set_user_id('test')
+        response = lp.set_user_attributes(
+            {
+                'userAttributes': {
+                    'firstName': 'Test',
+                    'lastName': 'User',
+                    'gender': 'F',
+                    'age': 21
+                }
+            }
+        )
+
+        self.assertTrue(response['success'])
