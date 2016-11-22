@@ -1,5 +1,9 @@
+import datetime
+from logging import warning
+
 import requests
-from leanplum import exceptions
+
+from leanplum import messages
 
 
 class Leanplum:
@@ -38,17 +42,14 @@ class Leanplum:
 
     def start(self, arguments=None):
         """Start a session. You must have called `set_user_id` or you must include `userId` in the arguments.
+        Additionally, if you set `deviceId` in your arguments, it will be set for the entire session.
         :param arguments: See the Leanplum docs for arguments structure:
             https://www.leanplum.com/dashboard#/4510371447570432/help/setup/api.
         :return: The unwrapped response object from Leanplum.
         """
         if arguments is None:
             arguments = {}
-        new_user_id = arguments.get('userId')
-        if new_user_id is not None:
-            self.user_id = new_user_id
-        elif self.user_id is None:
-            raise Exception(exceptions.USER_ID_NEEDED_IN_ARGS)
+        self._set_session_properties_from_start_arguments(arguments)
         arguments.update({'action': 'start'})
         return self._request(arguments)['response'][0]
 
@@ -85,7 +86,7 @@ class Leanplum:
         return self._simple_url_template.format(**url_params)
 
     def _get_combined_arguments(self, action_arguments):
-        """Combine the action arguments with the default arguments from the class.
+        """Combine the action arguments with the default arguments from the class, and the current timestamp
         :return: The combined default and action arguments.
         """
         default_arguments = dict()
@@ -95,6 +96,8 @@ class Leanplum:
             default_arguments['userId'] = self.user_id
         if self.device_id is not None:
             default_arguments['deviceId'] = self.device_id
+        if action_arguments.get('time') is None:
+            default_arguments['time'] = self._get_current_timestamp()
         default_arguments.update(action_arguments)
         return default_arguments
 
@@ -103,3 +106,22 @@ class Leanplum:
         :return: The request headers as a dict.
         """
         return {'Content-Type': 'application/json'}
+
+    def _set_session_properties_from_start_arguments(self, arguments):
+        """Update user_id and device_id, or raise error / warning if not set"""
+        new_user_id = arguments.get('userId')
+        if new_user_id is not None:
+            self.user_id = new_user_id
+        elif self.user_id is None:
+            raise Exception(messages.USER_ID_NEEDED_IN_ARGS)
+
+        new_device_id = arguments.get('deviceId')
+        if new_device_id is not None:
+            self.device_id = new_device_id
+        elif self.device_id is None:
+            warning(messages.UNSET_DEVICE_ID)
+
+    def _get_current_timestamp(self):
+        """Return the number of seconds since the Epoch"""
+        epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
+        return (datetime.datetime.now(tz=datetime.timezone.utc) - epoch).total_seconds()

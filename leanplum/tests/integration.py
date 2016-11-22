@@ -25,7 +25,7 @@ class TestLeanplumIntegration(unittest2.TestCase):
             self.development_client_key,
             dev_mode=True
         )
-        start_response = lp.start({'userId': 6937})
+        start_response = lp.start({'userId': 'test', 'deviceId': 'test'})
         self.assertTrue(start_response['success'])
         stop_response = lp.stop()
         self.assertTrue(stop_response['success'])

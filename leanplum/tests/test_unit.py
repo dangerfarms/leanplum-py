@@ -1,7 +1,12 @@
+import logging
+
 import requests_mock
 import unittest2
 
 from leanplum.base import Leanplum
+
+logger = logging.getLogger()
+logger.level = logging.ERROR
 
 
 @requests_mock.mock()
@@ -34,6 +39,12 @@ class TestLeanplumStart(unittest2.TestCase):
         self.assertIsNone(self.lp.user_id)
         self.lp.start({'userId': 1})
         self.assertEqual(self.lp.user_id, 1)
+
+    def test_should_set_device_id_in_class_if_provided_in_start(self, mock_requests):
+        mock_requests.post(self.url, json={'response': [{'success': True}]})
+        self.assertIsNone(self.lp.device_id)
+        self.lp.start({'userId': 1, 'deviceId': 1})
+        self.assertEqual(self.lp.device_id, 1)
 
 
 @requests_mock.mock()
