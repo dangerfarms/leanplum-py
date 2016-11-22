@@ -44,24 +44,33 @@ class Leanplum:
         """
         if arguments is None:
             arguments = {}
-        if self.user_id is None and arguments.get('userId') is None:
+        new_user_id = arguments.get('userId')
+        if new_user_id is not None:
+            self.user_id = new_user_id
+        elif self.user_id is None:
             raise Exception(exceptions.USER_ID_NEEDED_IN_ARGS)
         arguments.update({'action': 'start'})
-        return self._request(arguments)[0]['response']
+        return self._request(arguments)['response'][0]
 
     def stop(self):
-        return self._request({'action': 'stop'})[0]['response']
+        """Start a session. You must have called `set_user_id` or you must include `userId` in the arguments.
+        :param arguments: See the Leanplum docs for arguments structure:
+            https://www.leanplum.com/dashboard#/4510371447570432/help/setup/api.
+        :return: The unwrapped response object from Leanplum.
+        """
+        return self._request({'action': 'stop'})['response'][0]
 
     def _request(self, request_body):
         """POST a request to the Leanplum Api.
         :param request_body: Request body as a dict.
         :return: The parsed JSON response.
         """
-        return requests.post(
+        response = requests.post(
             self._get_url(),
             json=self._get_combined_arguments(request_body),
             headers=self._get_headers()
-        ).json()
+        )
+        return response.json()
 
     def _get_url(self):
         """Create the request URL based on the current values of the class.

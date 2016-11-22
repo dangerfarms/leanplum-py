@@ -63,3 +63,6 @@ target/
 
 # Mac
 .DS_Store
+
+# Environment setup
+.env
