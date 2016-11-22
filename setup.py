@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='leanplum',
     packages=['leanplum'],
-    version='0.1',
+    version='0.1.0',
     description='Wrapper for the Leanplum API',
     author='Danger Farms (Balint Vekerdy)',
     author_email='balint@dangerfarms.com',
