@@ -91,6 +91,14 @@ class Leanplum:
         })
         return self._request(track_arguments)
 
+    def heartbeat(self):
+        """Sends a keepalive heartbeat to the server"""
+
+        arguments = {
+            'action': 'heartbeat'
+        }
+        return self._request(arguments)
+
     def multi(self, data):
         """Call the  API with the multi action
         https://www.leanplum.com/dashboard#/<your-id>/help/docs/api?section=multi
