@@ -2,20 +2,23 @@ import datetime
 from logging import warning
 
 import requests
+import ssl
+from requests_toolbelt.adapters.fingerprint import FingerprintAdapter
 
 from leanplum import messages
 
 
 class Leanplum:
     """Access the Leanplum API. https://www.leanplum.com"""
-    BASE_URL = 'https://www.leanplum.com/api'
+    BASE_HOST = "https://www.leanplum.com"
+    BASE_URL = '{host}/api'.format(host=BASE_HOST)
     user_id = None
     device_id = None
     api_version = '1.0.6'
 
     _simple_url_template = '{base_url}?appId={app_id}&clientKey={client_key}&apiVersion={api_version}'
 
-    def __init__(self, app_id, client_key, api_version=None, dev_mode=False):
+    def __init__(self, app_id, client_key, api_version=api_version, dev_mode=False, verify=None):
         """Add your appId and clientKey. If you are using development key, set dev_mode=True.
         :param app_id: Your Leanplum appId.
         :param client_key: Your Leanplum clientKey (production or development).
@@ -25,8 +28,16 @@ class Leanplum:
         self.app_id = app_id
         self.client_key = client_key
         self.dev_mode = dev_mode
-        if api_version is not None:
-            self.api_version = api_version
+        # if api_version is not None:
+        #     self.api_version = api_version
+        if verify:
+            self.requests = requests.Session()
+            self.requests.mount(
+                self.BASE_HOST,
+                FingerprintAdapter(verify)
+            )
+        else:
+            self.requests = requests
 
     def set_user_id(self, user_id):
         """Set the current userId
@@ -80,6 +91,14 @@ class Leanplum:
         })
         return self._request(track_arguments)
 
+    def heartbeat(self):
+        """Sends a keepalive heartbeat to the server"""
+
+        arguments = {
+            'action': 'heartbeat'
+        }
+        return self._request(arguments)
+
     def multi(self, data):
         """Call the  API with the multi action
         https://www.leanplum.com/dashboard#/<your-id>/help/docs/api?section=multi
@@ -127,7 +146,7 @@ class Leanplum:
         :param request_body: Request body as a dict.
         :return: The parsed JSON response.
         """
-        response = requests.post(
+        response = self.requests.post(
             self._get_url(),
             json=self._get_combined_arguments(request_body),
             headers=self._get_headers()
